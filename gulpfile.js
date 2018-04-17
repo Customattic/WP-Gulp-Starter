@@ -5,7 +5,7 @@
  * Gulp for Wordpress Theme.
  * 
  * @author  Ahmed Bouhuolia <a.bouhuolia@gmail.com>
- * @version 1.0.0
+ * @version 1.1.0
  * @license The MIT License (MIT)
  * 
  * What is file does.
@@ -15,11 +15,12 @@
  *     Queries and corrects the line endings.
  *  3. JS: Babel compiler, concatenates, linting & uglifies specific files and corrects
  *     the line endings
- *  4. Minify all different of image types such as PNG, JPEG, SVG etc.
- *  5. Inject CSS instead of browser page reload.
- *  6. Check PHP code for missing or incorrect text-domain.
- *  7. Generate pot file for WP plugins and themes.
- *  8. Flexible configuration, allows to add sources and destination more than one to 
+ *  4. Minify all different of image types such as PNG, JPEG etc.
+ *  5. Minify SVG files and combine them in single <symbol> file.
+ *  6. Inject CSS instead of browser page reload.
+ *  7. Check PHP code for missing or incorrect text-domain.
+ *  8. Generate pot file for WP plugins and themes.
+ *  9. Flexible configuration, allows to add sources and destination more than one to 
  *     the same build in a standalone file.
  */
 
@@ -49,6 +50,8 @@ const babel  = require("gulp-babel"); // JavaScript compiler to write next gener
 
 // Image related.
 const imagemin = require('gulp-imagemin');
+const svgmin   = require('gulp-svgmin');
+const svgstore = require('gulp-svgstore');
 
 // Translate related.
 const checktextdomain = require('gulp-checktextdomain');
@@ -61,6 +64,7 @@ const filter      = require('gulp-filter');   // Enables you to work on a subset
 const sourcemaps  = require('gulp-sourcemaps'); // Maps code in a compressed file (E.g. style.css) back to it’s original position in a source file (E.g. structure.scss, which was later combined with other css files to generate style.css)
 const browserSync = require('browser-sync').create();
 const reload      = browserSync.reload;
+const plumber     = require('gulp-plumber');
 const sort        = require('gulp-sort'); // Recommended to prevent unnecessary changes in pot-file.
 const zip         = require('gulp-zip');  // ZIP compress files
 const mergeStream = require('merge-stream'); // Merges a bunch of streams.
@@ -69,6 +73,7 @@ const gulpif      = require('gulp-if');
 const del         = require('del');
 const runSequence = require('run-sequence');
 const lazypipe    = require('lazypipe');
+const cheerio     = require('gulp-cheerio');
 runSequence.options.ignoreUndefinedTasks = true;
 runSequence.options.showErrorStackTrace = false;
 
@@ -91,6 +96,15 @@ gulp.task('serve', ['browser-sync']);
 
 
 // ------------------------ Style Tasks ------------------------
+
+/**
+ * Task: `styles-clean
+ * 
+ * This task clean specific style files.
+ */
+gulp.task('styles-clean', function(){
+  del(config.style.clean);
+});
 
 /**
  * Task: `styles-build`
@@ -265,6 +279,49 @@ gulp.task('js', function(callback){
   runSequence('js-lint', 'js-bundle', 'js-minify', callback);
 });
 
+// ------------------------ SVG Tasks ------------------------
+
+/**
+ * Task: `svg-minify`.
+ * 
+ * This task minify SVG files.
+ */
+gulp.task('svg-minify', function(){
+  var builds = config.svg.minify.map(function(build){
+    return gulp.src(build.src)
+      .pipe( plumber() )
+      .pipe( svgmin(build.svgmin) )
+      .pipe( gulp.dest(build.dest) )
+      .pipe( browserSync.stream() );
+  });
+});
+
+/**
+ * Task: `svg-combine`.
+ * 
+ * This task combine all SVG files into one <symbol> file. 
+ */
+gulp.task('svg-combine', function(){
+  return config.svg.combine.map( function(build){
+    return gulp.src(build.src)
+      .pipe( rename({prefix: 'icon-'}) ) // Prefix all icons to prevent conflict.
+      .pipe( cheerio(build.cheeri) )
+      .pipe( svgstore(build.svgstore) )
+      .pipe( gulp.dest(build.dest) )
+      .pipe( browserSync.stream() );
+  });
+});
+
+/**
+ * Task: `svg`
+ * 
+ * This task runs the following task sequently.
+ * 
+ * svg-minify > svg-combine
+ */
+gulp.task('svg', function(callback){
+  runSequence('svg-minify', 'svg-combine', callback);
+});
 
 // ------------------------ Translation Tasks ------------------------
 

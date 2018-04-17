@@ -34,6 +34,10 @@ module.exports = {
 
   // Style Related.
   style: {
+    clean: [
+      'style.css', 'style.min.css',
+      'style-rtl.css', 'style-rtl.min.css'
+    ],
     build: [ 
       {
         src: './assets/sass/style.scss', // Path to main .scss file.
@@ -134,7 +138,32 @@ module.exports = {
       ]        
     }
   },
-
+  // SVG related.
+  svg: {
+    minify: [
+      {
+        src: './assets/svg/*.svg',
+        dest: './assets/svg',
+        svgmin: {}
+      }
+    ],
+    combine: [
+      {
+        src: './assets/svg/*.svg',
+        dest: './assets/svg/bundle/',
+        cheerio: { // Clean `<symbol>` by cleaning the following...
+          run: function($){
+            $('svg').attr('style', 'display: none;');
+            $('[fill]').removeAttr('fill');
+            $('path').removeAttr('class');
+            $('title').remove();
+          },
+          parserOptions: {xmlMode: true}
+        },
+        svgstore: {}
+      }
+    ]
+  },
   // Translate related.
   translate: {
     wpPot: {
