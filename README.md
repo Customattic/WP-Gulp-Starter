@@ -6,6 +6,7 @@ An advanced Gulp workflow for development Wordpress themes and plugins.
 * SASS to CSS conversion, error handles, postcss integrated, auto-prefixing, auto CSS formatting, build source maps, convert LTR to RTL, css minification, merge media queries and correct the line endings of CSS files.
 * Babel compiler, concatenates, linting & uglifies specific files and corrects the line endings of JavaScript files.
 * Minify all different image types such as PNG, JPEG, SVG etc.
+* Minify SVG files and combine them in single <symbol> file.
 * Inject CSS instead of browser page reload.
 * Check PHP code for missing or incorrect text-domain.
 * Generate pot file for WP plugins and themes.
