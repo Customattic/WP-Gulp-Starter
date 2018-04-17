@@ -210,6 +210,15 @@ gulp.task('styles', function(callback){
 // ------------------------ Script Tasks ------------------------
 
 /**
+ * Task: `js-clean`.
+ * 
+ * This task cleans script files.
+ */
+gulp.task('js-clean', function(){
+  return del(config.script.clean);
+});
+
+/**
  * Task: `js-lint`
  * 
  * This task Checks scripts for errors.
@@ -421,4 +430,4 @@ gulp.task('watch', function(){
   gulp.watch(config.watch.images, ['image', reload]);
 });
 
-gulp.task('default', ['styles', 'js', 'image', 'translate', 'compress']);
+gulp.task('default', ['styles', 'js', 'image', 'svg', 'translate', 'compress']);

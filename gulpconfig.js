@@ -38,7 +38,7 @@ module.exports = {
       'style.css', 'style.min.css',
       'style-rtl.css', 'style-rtl.min.css'
     ],
-    build: [ 
+    build: [
       {
         src: './assets/sass/style.scss', // Path to main .scss file.
         dest: './', // Path to place the compiled CSS file.
@@ -94,6 +94,10 @@ module.exports = {
   
   // Script related.
   script: {
+    clean: [
+      './assets/js/bundle.js',
+      './assets/js/customatic.min.js'
+    ],
     bundles: [
       {
         src: [
